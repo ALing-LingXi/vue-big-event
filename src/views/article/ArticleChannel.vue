@@ -1,12 +1,9 @@
 <template>
-  <RouterView></RouterView>
+  <div>文章分类</div>
 </template>
 
-
 <script setup>
-import { RouterView } from 'vue-router';
 </script>
 
 <style scoped>
-
 </style>
