@@ -47,7 +47,7 @@
     <el-container>
       <el-header>
         <div>
-          黑马程序员：<strong>{{'用户' }}</strong>
+         杂鱼欧尼酱的名字：<strong>{{'林希' }}</strong>
         </div>
         <el-dropdown placement="bottom-end" @command="handleCommand">
           <span class="el-dropdown__box">
@@ -69,7 +69,7 @@
       <el-main>
         <router-view></router-view>
       </el-main>
-      <el-footer>大事件 ©2023 Created by 黑马程序员</el-footer>
+      <el-footer>杂鱼杂鱼，写个网页能写红温的杂鱼</el-footer>
     </el-container>
   </el-container>
 </template>
