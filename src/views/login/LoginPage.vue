@@ -77,7 +77,6 @@ const login = async () => {
   await form.value.validate()
   const res = await LoginUserService(formData)
   const { setToken } = useUserStore()
-  console.log(res)
   setToken(res.token)
   router.push("/")
 }

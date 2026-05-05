@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import { getBasic } from "@/api/user";
 export const useUserStore = defineStore("userStore",()=>{
   const token = ref("")
   const setToken = (newValue)=>{
@@ -8,7 +9,15 @@ export const useUserStore = defineStore("userStore",()=>{
   const removeToken = ()=>{
     token.value = ""
   }
-  return {token,setToken,removeToken}
+  const basicMessage = ref({})
+  const Basic = async ()=>{
+   const message = await getBasic()
+   basicMessage.value = message.data.data
+  }
+  const setBasic = (value)=>{
+    basicMessage.value=value
+  }
+  return {token,setToken,removeToken,basicMessage,Basic,setBasic}
 },{
   persist:true
 })

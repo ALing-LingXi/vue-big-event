@@ -7,22 +7,32 @@ const instance = axios.create({
   timeout: 10000,
 });
 
+// instance.interceptors.request.use(
+//   (config) => {
+//     // 在发送请求之前做处理，例如添加 Token
+//     const token = useUserStore().token
+//     if (token) {
+//       config.headers.Authorization = `Bearer ${token}`;
+//     }
+//     console.log("请求配置：", config);
+//     return config;
+//   },
+//   (error) => {
+//     // 请求错误处理
+//     return Promise.reject(error);
+//   }
+// );
 instance.interceptors.request.use(
   (config) => {
-    // 在发送请求之前做处理，例如添加 Token
-    const token = useUserStore().token
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const userStore = useUserStore()
+    // 确保从 store 中拿到的 token 存在
+    if (userStore.token) {
+      // 按照文档要求：必须是 "Bearer " 打头
+      config.headers.Authorization = userStore.token
     }
-    console.log("请求配置：", config);
-    return config;
-  },
-  (error) => {
-    // 请求错误处理
-    return Promise.reject(error);
+    return config
   }
-);
-
+)
 instance.interceptors.response.use(
   (response) => {
     if (response.data.code === 0) {
@@ -34,6 +44,7 @@ instance.interceptors.response.use(
   (error) => {
     // 对响应错误进行处理
     if (error?.response?.status === 401) {
+      useUserStore().removeToken() // 重点：不仅要跳转，还要把本地存的脏数据清掉
       router.push("/login")
     }
     ElMessage.error(error?.response?.data?.message || "服务异常")

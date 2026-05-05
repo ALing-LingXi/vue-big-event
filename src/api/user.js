@@ -21,3 +21,8 @@ export const LoginUserService=(({username,password})=>{
     }
   })
 })
+export const getBasic = ()=>{
+  return request({
+    url:"/my/userinfo"
+  })
+}
