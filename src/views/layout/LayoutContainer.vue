@@ -135,7 +135,7 @@ const handleCommand = async (command) => {
 
     &__logo {
       height: 120px;
-      background: url('@/assets/logo.png') no-repeat center / 120px auto;
+      background: url('@/assets/logo-npm.png') no-repeat center / 120px auto;
     }
 
     .el-menu {

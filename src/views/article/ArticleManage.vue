@@ -34,7 +34,7 @@
 import pageContain from '@/componets/pageContain.vue';
 import { Edit, Delete } from '@element-plus/icons-vue';
 import { getArticle, delteArticle } from '@/api/article';
-import dailogVue from './dailog.vue';
+import dailogVue from './components/dailog.vue';
 import { ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 let articleList = ref([])
