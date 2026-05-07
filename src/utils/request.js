@@ -38,18 +38,20 @@ instance.interceptors.response.use(
     if (response.data.code === 0) {
       return response.data
     }
-    ElMessage.error(response.data.message || "服务异常")
-    return Promise.reject(response.data);
-  },
-  (error) => {
-    // 对响应错误进行处理
-    if (error?.response?.status === 401) {
-      useUserStore().removeToken() // 重点：不仅要跳转，还要把本地存的脏数据清掉
-      router.push("/login")
+    // 处理请求成功，但是返回结果出问题的情况
+      ElMessage.error(response.data.message || "服务异常")
+      return Promise.reject(response.data);
+    },
+    (error) => {
+      // 对响应错误进行处理
+      if (error?.response?.status === 401) {
+        useUserStore().removeToken() // 重点：不仅要跳转，还要把本地存的脏数据清掉
+        router.push("/login")
+        return Promise.reject(error)
+      }
+      ElMessage.error(error?.response?.data?.message || "服务异常")
+      return Promise.reject(error)
     }
-    ElMessage.error(error?.response?.data?.message || "服务异常")
-    return Promise.reject(error)
-  }
 );
 
 export default instance; // 注意这里是导出 instance

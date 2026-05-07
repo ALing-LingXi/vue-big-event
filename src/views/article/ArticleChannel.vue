@@ -18,6 +18,8 @@
         <el-empty description="暂无数据"></el-empty>
       </template>
     </el-table>
+
+
   </pageContain>
 </template>
 <script setup>
@@ -25,7 +27,14 @@ import pageContain from '@/componets/pageContain.vue';
 import { Delete, Edit } from '@element-plus/icons-vue';
 import { reactive,ref } from 'vue';
 import selectVue from './components/select.vue';
-const data = reactive([
+import { getBook } from '@/api/article';
+const parmas = reactive({
+  pagenum:"5",
+  pagesize:"1",
+  cate_id:"",
+  sate:''
+})
+const data = ref([
   {
     "id": 1562,
     "title": "我是一个文章的标题示例",
@@ -34,11 +43,18 @@ const data = reactive([
     "cate_name": "123"
   }
 ])
+const cate_id = ref()
+const total = ref()
 function onEdit(row) {
   console.log(row)
 }
 function onDelete(row) {
   console.log(row.id)
 }
-const cate_id = ref()
+async function bookList(){
+ const book = await getBook(parmas)
+  data.value = book.data
+  total.value = book.total
+}
+bookList()
 </script>

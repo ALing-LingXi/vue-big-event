@@ -21,3 +21,10 @@ export const delteArticle = (id)=>{
     }
   })
 }
+
+// 文章管理接口
+export const getBook =(params)=>{
+  return request.get('/my/article/list',{
+    params
+  })
+}
