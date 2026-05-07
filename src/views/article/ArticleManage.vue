@@ -1,76 +1,73 @@
 <template>
   <pageContain title="文章管理">
+
+    <selectVue v-model="cate_id"></selectVue>
     <template #extra><el-button type="primary" @click="handleAdd">添加分类</el-button></template>
-    <el-table v-loading="loading" :data="articleList" style="min-width: 100%;">
-      <el-table-column type="index" width="100" label="序号">
-      </el-table-column>
-
-      <el-table-column property="cate_alias" label="分类名称">
-      </el-table-column>
-
-      <el-table-column property="cate_name" label="分类别名">
-      </el-table-column>
-
-      <el-table-column width="150" label="操作">
-        <!-- 成对出现通常是为了在这里添加自定义内容，例如按钮 -->
+    <el-table :data="data">
+      <el-table-column prop="title" label="文章标题"></el-table-column>
+      <el-table-column prop="cate_name" label="分类"></el-table-column>
+      <el-table-column prop="pub_date" label="发表时间">
         <template #default="scope">
-          <el-button type="primary" :icon="Edit" circle plain @click="handleEdit(scope.row)">
-
-          </el-button>
-          <el-button :icon="Delete" circle type="danger" plain @click="handleDelete(scope.row)">
-
-          </el-button>
+          {{ format(scope.row.pub_data) }}
         </template>
       </el-table-column>
-
+      <el-table-column prop="state" label="状态"></el-table-column>
+      <el-table-column label="操作">
+        <template #default="scope">
+          <el-button circle type="primary" :icon="Edit" plain @click="onEdit(scope.row)"></el-button>
+          <el-button circle type="danger" :icon="Delete" plain @click="onDelete(scope.row)"></el-button>
+        </template>
+      </el-table-column>
       <template #empty>
         <el-empty description="暂无数据"></el-empty>
       </template>
     </el-table>
-    <dailogVue ref="dailogRef" @success="update"></dailogVue>
+
+    <el-pagination background="true" style="margin-top: 30px; justify-content: flex-end;"
+      v-model:current-page="params.pagenum" v-model:page-size="params.pagesize" :page-sizes="[2, 5, 8, 10]" :size="size"
+      layout=" jumper,total, sizes, prev, pager, next," :total="total" @size-change="handleSizeChange"
+      @current-change="handleCurrentChange" />
   </pageContain>
 </template>
 <script setup>
+import { format } from '@/utils/data';
 import pageContain from '@/componets/pageContain.vue';
-import { Edit, Delete } from '@element-plus/icons-vue';
-import { getArticle, delteArticle } from '@/api/article';
-import dailogVue from './components/dailog.vue';
-import { ref } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
-let articleList = ref([])
-const loading = ref(true)
-const getArticleMd = async () => {
-  const data = await getArticle()
-  articleList.value = data.data
-  loading.value = false
+import { Delete, Edit } from '@element-plus/icons-vue';
+import { reactive, ref, onMounted } from 'vue';
+import selectVue from './components/select.vue';
+import { getBook } from '@/api/article';
+const params = reactive({
+  pagenum: "1",
+  pagesize: "10",
+  cate_id: "",
+  state: ''
+})
+const data = ref()
+const cate_id = ref()
+const total = ref()
+function onEdit(row) {
+  console.log(row)
 }
-getArticleMd()
-const dailogRef = ref()
-function handleEdit(row) {
-  dailogRef.value.open(row)
+function onDelete(row) {
+  console.log(row.id)
 }
-function handleAdd() {
-  dailogRef.value.open()
+async function bookList() {
+  const book = await getBook(params)
+  data.value = book.data
+  total.value = book.total
+  console.log(data.value)
+  console.log(book)
 }
-function update() {
-  getArticleMd()
+function handleSizeChange(size) {
+  params.pagesize = size;
+  params.pagenum = 1; // 切换每页显示数量时，回到第一页
+  bookList();
 }
-function handleDelete(row) {
-  ElMessageBox.confirm(
-    "您确定要删除这个分类吗?",
-    {
-      confirmButtonText: '确认',
-      cancelButtonText: '取消',
-      type: 'warning',
-    }
-  )
-    .then(async () => {
-      await delteArticle(row.id)
-      await getArticleMd()
-      ElMessage.success("删除成功")
-    })
-    .catch((err) => {
-      console.log(err)
-    })
+function handleCurrentChange(page) {
+  params.pagenum = page;
+  bookList();
 }
+onMounted(() => {
+  bookList()
+})
 </script>

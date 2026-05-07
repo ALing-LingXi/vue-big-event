@@ -21,7 +21,9 @@ export const delteArticle = (id)=>{
     }
   })
 }
-
+export const  articleManage = ()=>{
+  return request.get('/my/cate/list')
+}
 // 文章管理接口
 export const getBook =(params)=>{
   return request.get('/my/article/list',{
