@@ -12,7 +12,7 @@ export const useUserStore = defineStore("userStore",()=>{
   const basicMessage = ref({})
   const Basic = async ()=>{
    const message = await getBasic()
-   basicMessage.value = message.data.data
+   basicMessage.value = message.data
   }
   const setBasic = (value)=>{
     basicMessage.value=value

@@ -42,8 +42,9 @@
       v-model:current-page="params.pagenum" v-model:page-size="params.pagesize" :page-sizes="[2, 5, 8, 10]" :size="size"
       layout=" jumper,total, sizes, prev, pager, next," :total="total" @size-change="handleSizeChange"
       @current-change="handleCurrentChange" />
-    <drawer ref="drawerData"></drawer>
+    <drawer ref="drawerData" @success="handleSuccess"></drawer>
   </pageContain>
+
 </template>
 <script setup>
 import drawer from './components/drawer.vue';
@@ -52,20 +53,37 @@ import pageContain from '@/componets/pageContain.vue';
 import { Delete, Edit } from '@element-plus/icons-vue';
 import { reactive, ref, onMounted } from 'vue';
 import selectVue from './components/select.vue';
-import { getBook } from '@/api/article';
+import { getBook, deleteArticle } from '@/api/article';
+import { ElMessageBox, ElMessage } from 'element-plus';
 const params = reactive({
   pagenum: "1",
   pagesize: "10",
   cate_id: "",
   state: ''
 })
+//
 const drawerData = ref()
 const data = ref()
 const total = ref()
 const refloding = ref(false)
 
-function onDelete(row) {
-  console.log(row.id)
+async function onDelete(row) {
+  try {
+    await ElMessageBox.confirm(
+      '确定要删除这篇文章吗？',
+      '温馨提示',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    await deleteArticle(row.id)
+    ElMessage.success('删除成功')
+    bookList()
+  } catch {
+    ElMessage.info('已取消删除')
+  }
 }
 
 async function bookList() {
@@ -99,11 +117,17 @@ function reset() {
 
 // 给添加文章按钮进行绑定
 function addArticle() {
+  //  drawerData.value 拿到的是drawer组件以及它暴露的属性和方法
   drawerData.value.open()
 }
 function editArticle(row) {
   drawerData.value.open(row)
 }
+
+function handleSuccess() {
+  bookList()
+}
+
 onMounted(() => {
   bookList()
 })

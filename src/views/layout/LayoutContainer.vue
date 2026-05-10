@@ -2,7 +2,8 @@
   <el-container class="layout-container">
     <el-aside width="200px">
       <div class="el-aside__logo"></div>
-      <el-menu active-text-color="#ffd04b" background-color="#232323" text-color="#fff" router :default-active="$route.path">
+      <el-menu active-text-color="#ffd04b" background-color="#232323" text-color="#fff" router
+        :default-active="$route.path">
         <el-menu-item index="/article/channel">
           <el-icon>
             <Management />
@@ -47,11 +48,13 @@
     <el-container>
       <el-header>
         <div>
-         杂鱼欧尼酱的名字：<strong>{{'林希' }}</strong>
+          <!-- 修改为动态获取用户名或昵称 -->
+          用户姓名：<strong>{{ userStore.basicMessage.nickname || userStore.basicMessage.username || '未登录' }}</strong>
         </div>
         <el-dropdown placement="bottom-end" @command="handleCommand">
           <span class="el-dropdown__box">
-            <el-avatar :src= "avatar" />
+            <!-- 核心修复：判断是否为 Base64 或 远程路径 -->
+            <el-avatar :src="computedAvatar" />
             <el-icon>
               <CaretBottom />
             </el-icon>
@@ -69,7 +72,15 @@
       <el-main>
         <router-view></router-view>
       </el-main>
-      <el-footer>杂鱼杂鱼，写个网页能写红温的杂鱼</el-footer>
+      <el-footer class="footer-container">
+  <div class="footer-content">
+    <!-- 第一行：品牌与版本 -->
+    <div class="brand-row">
+      <span class="project-title">npm 内容管理系统</span>
+      <span class="version-tag">v2.1.0</span>
+    </div>
+  </div>
+</el-footer>
     </el-container>
   </el-container>
 </template>
@@ -85,14 +96,27 @@ import {
   SwitchButton,
   CaretBottom
 } from '@element-plus/icons-vue'
-import avatar from '@/assets/default.png'
+import defaultAvatar from '@/assets/default.png'
+import request from '@/utils/request';
 import { useUserStore } from '@/stores';
-import { onMounted } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { onMounted, computed } from 'vue';
+import {ElMessageBox } from 'element-plus';
 import { useRouter } from 'vue-router';
 
 const userStore = useUserStore()
 const router = useRouter()
+
+// 逻辑：计算最终显示的头像地址
+const computedAvatar = computed(() => {
+  const pic = userStore.basicMessage.user_pic
+  if (!pic) return defaultAvatar
+
+  // 如果是 base64 数据（以 data: 开头），直接返回
+  if (pic.startsWith('data:')) return pic
+
+  // 如果是服务器相对路径，则拼接 baseURL
+  return request.defaults.baseURL + '/' + pic.replace(/^\//, '')
+})
 
 onMounted(async () => {
   try {
@@ -118,7 +142,7 @@ const handleCommand = async (command) => {
       userStore.setBasic({})
       router.push('/login')
     } catch {
-      ElMessage.info('你取消了操作')
+      // 用户取消
     }
   } else {
     router.push(`/user/${command}`)
@@ -126,51 +150,35 @@ const handleCommand = async (command) => {
 }
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
+/* 保持你原有的 CSS 样式 */
 .layout-container {
   height: 100vh;
-
-  .el-aside {
-    background-color: #232323;
-
-    &__logo {
-      height: 120px;
-      background: url('@/assets/logo-npm.png') no-repeat center / 120px auto;
-    }
-
-    .el-menu {
-      border-right: none;
-    }
-  }
-
-  .el-header {
-    background-color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    .el-dropdown__box {
-      display: flex;
-      align-items: center;
-
-      .el-icon {
-        color: #999;
-        margin-left: 10px;
-      }
-
-      &:active,
-      &:focus {
-        outline: none;
-      }
-    }
-  }
-
-  .el-footer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    color: #666;
-  }
+}
+.el-aside {
+  background-color: #232323;
+}
+.el-aside__logo {
+  height: 120px;
+  background: url('@/assets/logo-npm.png') no-repeat center / 120px auto;
+}
+.el-header {
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.el-dropdown__box {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.el-dropdown__box .el-icon {
+  margin-left: 5px;
+}
+.el-footer {
+  text-align: center;
+  line-height: 60px; /* 这里的像素值应与 el-footer 的默认高度一致，实现垂直居中 */
+  color: #999;
 }
 </style>
